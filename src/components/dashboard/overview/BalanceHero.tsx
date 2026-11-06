@@ -26,7 +26,7 @@ export function BalanceHero({ onSendMoney, onAddFunds }: BalanceHeroProps) {
   return (
     <section
       aria-label="Total balance"
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 p-6 text-white shadow-lg shadow-slate-900/10 sm:p-7"
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 p-6 text-white shadow-lg shadow-slate-900/10 sm:p-7 dark:to-teal-900/60 dark:ring-1 dark:ring-white/10"
     >
       {/* Decorative glow */}
       <div

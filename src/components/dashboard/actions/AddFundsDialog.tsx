@@ -104,8 +104,8 @@ function AddFundsForm({ onClose }: { onClose: () => void }) {
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium ring-1 transition-all active:scale-95",
                 amount === preset
-                  ? "bg-slate-900 text-white ring-slate-900"
-                  : "text-slate-600 ring-slate-200 hover:bg-slate-50"
+                  ? "bg-primary text-primary-foreground ring-primary"
+                  : "text-muted-foreground ring-border hover:bg-muted/50"
               )}
             >
               {formatCurrency(preset).replace(".00", "")}

@@ -6,20 +6,29 @@ import { ToastProvider } from "@/components/ui/toaster"
 import { Layout } from "@/components/layout/Layout"
 import { SendMoneyDialog } from "@/components/dashboard/actions/SendMoneyDialog"
 import { AddFundsDialog } from "@/components/dashboard/actions/AddFundsDialog"
+import { SettingsDialog } from "@/components/settings/SettingsDialog"
+import type { SettingsTab } from "@/components/settings/SettingsDialog"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { BankingProvider } from "@/state/BankingProvider"
+import { ThemeProvider } from "@/theme/ThemeProvider"
 import { useBankingState } from "@/hooks/useBanking"
 
-type ActiveDialog = "send" | "add" | null
+type ActiveDialog = "send" | "add" | "settings" | null
 
 function AppShell() {
   const [dialog, setDialog] = useState<ActiveDialog>(null)
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>("profile")
   const { status } = useBankingState()
   const closeIfDismissed = (open: boolean) => !open && setDialog(null)
+  const openSettings = (tab: SettingsTab = "profile") => {
+    setSettingsTab(tab)
+    setDialog("settings")
+  }
 
   return (
     <>
       <Layout
+        onOpenSettings={openSettings}
         headerActions={
           <Button
             size="lg"
@@ -40,17 +49,24 @@ function AppShell() {
 
       <SendMoneyDialog open={dialog === "send"} onOpenChange={closeIfDismissed} />
       <AddFundsDialog open={dialog === "add"} onOpenChange={closeIfDismissed} />
+      <SettingsDialog
+        open={dialog === "settings"}
+        onOpenChange={closeIfDismissed}
+        defaultTab={settingsTab}
+      />
     </>
   )
 }
 
 function App() {
   return (
-    <ToastProvider>
-      <BankingProvider>
-        <AppShell />
-      </BankingProvider>
-    </ToastProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <BankingProvider>
+          <AppShell />
+        </BankingProvider>
+      </ToastProvider>
+    </ThemeProvider>
   )
 }
 

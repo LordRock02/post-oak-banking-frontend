@@ -27,8 +27,8 @@ interface TransactionDetailSheetProps {
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3 text-sm">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-right font-medium text-slate-900">{children}</dd>
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="text-right font-medium text-foreground">{children}</dd>
     </div>
   )
 }
@@ -50,14 +50,14 @@ function CopyReference({ reference }: { reference: string }) {
     <button
       type="button"
       onClick={copy}
-      className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-xs transition-colors hover:bg-slate-100"
+      className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-xs transition-colors hover:bg-muted"
       aria-label={`Copy reference ${reference}`}
     >
       {reference}
       {copied ? (
-        <Check className="size-3.5 text-emerald-600" />
+        <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" />
       ) : (
-        <Copy className="size-3.5 text-slate-400" />
+        <Copy className="size-3.5 text-faint" />
       )}
     </button>
   )
@@ -80,20 +80,20 @@ export function TransactionDetailSheet({
       <SheetContent side="right" className="w-full gap-0 sm:max-w-md">
         {t && (
           <>
-            <SheetHeader className="items-center gap-3 border-b border-slate-100 px-6 pt-10 pb-6 text-center">
+            <SheetHeader className="items-center gap-3 border-b border-border/70 px-6 pt-10 pb-6 text-center">
               <span
                 className={cn(
                   "flex size-14 items-center justify-center rounded-2xl",
-                  credit ? "bg-teal-50 text-teal-700" : "bg-slate-100 text-slate-700"
+                  credit ? "bg-teal-50 dark:bg-teal-400/10 text-teal-700 dark:text-teal-300" : "bg-muted text-foreground/80"
                 )}
               >
                 <CategoryIcon category={t.category} className="size-6" strokeWidth={1.75} />
               </span>
-              <SheetTitle className="text-base text-slate-900">{t.merchantName}</SheetTitle>
+              <SheetTitle className="text-base text-foreground">{t.merchantName}</SheetTitle>
               <p
                 className={cn(
                   "text-3xl font-semibold tracking-tight tabular-nums",
-                  credit ? "text-teal-700" : "text-slate-900"
+                  credit ? "text-teal-700 dark:text-teal-300" : "text-foreground"
                 )}
               >
                 {formatSignedCurrency(t.amount, t.type)}
@@ -104,13 +104,13 @@ export function TransactionDetailSheet({
 
             <div className="flex-1 overflow-y-auto px-6">
               {t.status === "PENDING" && (
-                <p className="mt-4 rounded-xl bg-amber-50 px-3.5 py-3 text-xs text-amber-900 ring-1 ring-amber-600/15">
+                <p className="mt-4 rounded-xl bg-amber-50 dark:bg-amber-400/10 px-3.5 py-3 text-xs text-amber-900 dark:text-amber-300 ring-1 ring-amber-600/15 dark:ring-amber-400/25">
                   {credit
                     ? "This deposit is being processed and will be added to your balance once it posts."
                     : "These funds are on hold and already deducted from your available balance. They'll post shortly."}
                 </p>
               )}
-              <dl className="divide-y divide-slate-100">
+              <dl className="divide-y divide-border/70">
                 <DetailRow label="Type">{credit ? "Credit (money in)" : "Debit (money out)"}</DetailRow>
                 <DetailRow label="Category">{t.category}</DetailRow>
                 <DetailRow label="Account">
@@ -123,7 +123,7 @@ export function TransactionDetailSheet({
               </dl>
             </div>
 
-            <SheetFooter className="flex-row border-t border-slate-100 px-6">
+            <SheetFooter className="flex-row border-t border-border/70 px-6">
               <Button
                 variant="outline"
                 className="h-10 flex-1 rounded-xl"

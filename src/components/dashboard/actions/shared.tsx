@@ -16,13 +16,13 @@ export function AmountInput({ id, value, onChange, invalid }: AmountInputProps) 
   return (
     <div
       className={cn(
-        "flex h-14 items-center gap-1 rounded-xl border bg-white px-4 transition-colors focus-within:ring-3",
+        "flex h-14 items-center gap-1 rounded-xl border bg-card px-4 transition-colors focus-within:ring-3",
         invalid
           ? "border-rose-400 focus-within:ring-rose-500/15"
           : "border-input focus-within:border-ring focus-within:ring-ring/50"
       )}
     >
-      <span className="text-2xl font-semibold text-slate-400">$</span>
+      <span className="text-2xl font-semibold text-faint">$</span>
       <input
         id={id}
         inputMode="decimal"
@@ -32,7 +32,7 @@ export function AmountInput({ id, value, onChange, invalid }: AmountInputProps) 
         onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))}
         aria-invalid={invalid || undefined}
         aria-describedby={invalid ? `${id}-error` : undefined}
-        className="w-full bg-transparent text-2xl font-semibold text-slate-900 tabular-nums outline-none placeholder:text-slate-300"
+        className="w-full bg-transparent text-2xl font-semibold text-foreground tabular-nums outline-none placeholder:text-faint"
       />
     </div>
   )
@@ -63,20 +63,20 @@ interface SuccessViewProps {
 export function SuccessView({ title, amount, lines, onDone }: SuccessViewProps) {
   return (
     <div className="flex flex-col items-center gap-5 pt-2 text-center animate-in fade-in zoom-in-95 duration-300">
-      <span className="flex size-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/50">
+      <span className="flex size-14 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 ring-8 ring-emerald-50/50 dark:ring-emerald-400/5">
         <CheckCircle2 className="size-7" />
       </span>
       <div className="flex flex-col gap-1">
-        <p className="text-sm text-slate-500">{title}</p>
-        <p className="text-3xl font-semibold tracking-tight text-slate-900 tabular-nums">
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-3xl font-semibold tracking-tight text-foreground tabular-nums">
           {formatCurrency(amount)}
         </p>
       </div>
-      <dl className="w-full divide-y divide-slate-100 rounded-xl bg-slate-50 px-4 text-sm">
+      <dl className="w-full divide-y divide-border/70 rounded-xl bg-muted/50 px-4 text-sm">
         {lines.map((line) => (
           <div key={line.label} className="flex justify-between gap-4 py-2.5">
-            <dt className="text-slate-500">{line.label}</dt>
-            <dd className="text-right font-medium text-slate-900">{line.value}</dd>
+            <dt className="text-muted-foreground">{line.label}</dt>
+            <dd className="text-right font-medium text-foreground">{line.value}</dd>
           </div>
         ))}
       </dl>
