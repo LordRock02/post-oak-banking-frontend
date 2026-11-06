@@ -2,8 +2,6 @@ import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import {
   ArrowLeftRight,
-  Bell,
-  ChevronDown,
   Landmark,
   LayoutDashboard,
   LineChart,
@@ -16,6 +14,9 @@ import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { NotificationsMenu } from "@/components/layout/NotificationsMenu"
+import { ProfileMenu } from "@/components/layout/ProfileMenu"
+import type { SettingsTab } from "@/components/settings/SettingsDialog"
 import {
   Sheet,
   SheetContent,
@@ -81,41 +82,49 @@ function BrandMark() {
 interface NavLinksProps {
   active: string
   onNavigate: (id: string) => void
+  onOpenSettings: () => void
 }
 
-function NavLinks({ active, onNavigate }: NavLinksProps) {
+function NavLinks({ active, onNavigate, onOpenSettings }: NavLinksProps) {
   return (
     <nav aria-label="Main" className="flex flex-1 flex-col gap-1 px-3 py-2">
       {NAV_ITEMS.map(({ id, label, icon: Icon, target }) => {
         const isActive = active === id
+        const itemClassName = cn(
+          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+          isActive
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "cursor-pointer text-muted-foreground hover:bg-muted hover:text-foreground"
+        )
+        const content = (
+          <>
+            <Icon className="size-4 transition-transform group-hover:scale-110" strokeWidth={1.75} />
+            {label}
+          </>
+        )
+
+        // Settings opens a dialog rather than navigating, so it's a button, not a link.
+        if (!target) {
+          return (
+            <button key={id} type="button" onClick={onOpenSettings} className={itemClassName}>
+              {content}
+            </button>
+          )
+        }
+
         return (
           <a
             key={id}
-            href={target ? `#${target}` : undefined}
-            aria-disabled={!target || undefined}
+            href={`#${target}`}
             aria-current={isActive ? "page" : undefined}
             onClick={(e) => {
               e.preventDefault()
-              if (!target) return
               document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" })
               onNavigate(id)
             }}
-            className={cn(
-              "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-              isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : target
-                  ? "cursor-pointer text-muted-foreground hover:bg-muted hover:text-foreground"
-                  : "cursor-not-allowed text-faint"
-            )}
+            className={itemClassName}
           >
-            <Icon className="size-4 transition-transform group-hover:scale-110" strokeWidth={1.75} />
-            {label}
-            {!target && (
-              <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                Soon
-              </span>
-            )}
+            {content}
           </a>
         )
       })}
@@ -135,28 +144,14 @@ function SecurityCard() {
   )
 }
 
-function UserProfile() {
-  return (
-    <button
-      type="button"
-      className="flex items-center gap-2 rounded-xl py-1.5 pr-2 pl-1.5 text-sm transition-colors hover:bg-muted"
-    >
-      <span className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-slate-800 text-xs font-semibold text-white">
-        JD
-      </span>
-      <span className="hidden text-sm font-medium text-foreground/80 sm:inline">Jane Doe</span>
-      <ChevronDown className="hidden size-3.5 text-faint sm:inline" />
-    </button>
-  )
-}
-
 interface LayoutProps {
   children: ReactNode
   /** Extra controls rendered in the top header (e.g. primary actions). */
   headerActions?: ReactNode
+  onOpenSettings: (tab?: SettingsTab) => void
 }
 
-export function Layout({ children, headerActions }: LayoutProps) {
+export function Layout({ children, headerActions, onOpenSettings }: LayoutProps) {
   const [active, setActive] = useActiveSection()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const activeLabel = NAV_ITEMS.find((item) => item.id === active)?.label ?? "Dashboard"
@@ -165,7 +160,7 @@ export function Layout({ children, headerActions }: LayoutProps) {
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border/70 bg-card md:flex">
         <BrandMark />
-        <NavLinks active={active} onNavigate={setActive} />
+        <NavLinks active={active} onNavigate={setActive} onOpenSettings={() => onOpenSettings()} />
         <SecurityCard />
         <p className="px-5 pb-4 text-[11px] text-faint">&copy; {CURRENT_YEAR} Post Oak Banking</p>
       </aside>
@@ -189,6 +184,10 @@ export function Layout({ children, headerActions }: LayoutProps) {
                     setActive(id)
                     setMobileNavOpen(false)
                   }}
+                  onOpenSettings={() => {
+                    setMobileNavOpen(false)
+                    onOpenSettings()
+                  }}
                 />
                 <SecurityCard />
               </SheetContent>
@@ -199,11 +198,8 @@ export function Layout({ children, headerActions }: LayoutProps) {
           <div className="flex items-center gap-1.5 sm:gap-2">
             {headerActions}
             <ThemeToggle />
-            <Button variant="ghost" size="icon" className="relative rounded-xl" aria-label="Notifications">
-              <Bell className="size-4.5 text-muted-foreground" />
-              <span className="absolute top-2 right-2 size-1.5 rounded-full bg-rose-500" />
-            </Button>
-            <UserProfile />
+            <NotificationsMenu />
+            <ProfileMenu onOpenSettings={onOpenSettings} />
           </div>
         </header>
 
