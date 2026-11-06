@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import {
   ArrowLeftRight,
-  Landmark,
   LayoutDashboard,
   LineChart,
   Menu,
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { NotificationsMenu } from "@/components/layout/NotificationsMenu"
 import { ProfileMenu } from "@/components/layout/ProfileMenu"
+import { BrandMark } from "@/components/layout/BrandMark"
 import type { SettingsTab } from "@/components/settings/SettingsDialog"
 import {
   Sheet,
@@ -66,17 +66,6 @@ function useActiveSection() {
   }, [])
 
   return [active, setActive] as const
-}
-
-function BrandMark() {
-  return (
-    <div className="flex h-16 items-center gap-2.5 px-5">
-      <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-        <Landmark className="size-4" strokeWidth={2} />
-      </span>
-      <span className="text-sm font-semibold tracking-tight text-foreground">Post Oak</span>
-    </div>
-  )
 }
 
 interface NavLinksProps {

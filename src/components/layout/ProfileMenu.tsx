@@ -9,6 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuthActions, useAuthState } from "@/hooks/useAuth"
+import { initials } from "@/lib/format"
 import { notify } from "@/lib/toast"
 import type { SettingsTab } from "@/components/settings/SettingsDialog"
 
@@ -17,6 +19,10 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ onOpenSettings }: ProfileMenuProps) {
+  const { fullName, email } = useAuthState()
+  const { logout } = useAuthActions()
+  const name = fullName ?? "Account"
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -28,18 +34,18 @@ export function ProfileMenu({ onOpenSettings }: ProfileMenuProps) {
         }
       >
         <span className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-slate-800 text-xs font-semibold text-white">
-          JD
+          {initials(name)}
         </span>
-        <span className="hidden text-sm font-medium text-foreground/80 sm:inline">Jane Doe</span>
+        <span className="hidden text-sm font-medium text-foreground/80 sm:inline">{name}</span>
         <ChevronDown className="hidden size-3.5 text-faint sm:inline" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel>
-            <span className="block text-xs font-medium text-foreground">Jane Doe</span>
-            <span className="block text-[11px] font-normal text-muted-foreground">
-              jane.doe@example.com
-            </span>
+            <span className="block text-xs font-medium text-foreground">{name}</span>
+            {email && (
+              <span className="block text-[11px] font-normal text-muted-foreground">{email}</span>
+            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onOpenSettings("profile")}>
@@ -54,7 +60,10 @@ export function ProfileMenu({ onOpenSettings }: ProfileMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
-          onClick={() => notify("Signed out", "You've been logged out of this session.", "info")}
+          onClick={() => {
+            logout()
+            notify("Signed out", "You've been logged out of this session.", "info")
+          }}
         >
           <LogOut />
           Log Out

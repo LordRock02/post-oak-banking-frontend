@@ -33,6 +33,17 @@ export function formatPercent(value: number) {
   return `${Math.abs(value).toFixed(1)}%`
 }
 
+/** First letter of up to the first two words, e.g. "Jane Doe" -> "JD". */
+export function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase()
+}
+
 /** Parses a YYYY-MM-DD string as a local date (avoids UTC off-by-one). */
 export function parseISODate(date: string) {
   return new Date(`${date}T00:00:00`)
