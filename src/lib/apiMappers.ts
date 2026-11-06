@@ -92,7 +92,8 @@ export function toAccount(raw: RawAccount | null | undefined): Account | null {
   const id = text(raw?.id)
   if (!id) return null
   const name = text(raw?.name) || "Account"
-  const digits = text(raw?.accountNumber).replace(/\D/g, "")
+  // e.g. "ACC-D995C46B" -> "C46B": keep the real tail, not just its digits.
+  const accountNumber = text(raw?.accountNumber).replace(/[^0-9a-z]/gi, "")
   return {
     id,
     userId: text(raw?.userId),
@@ -100,7 +101,7 @@ export function toAccount(raw: RawAccount | null | undefined): Account | null {
     type: toAccountType(name),
     balance: toAmount(raw?.balance),
     currency: toCurrency(raw?.currency),
-    lastFour: (digits || id.replace(/[^0-9a-z]/gi, "")).slice(-4).toUpperCase(),
+    lastFour: (accountNumber || id.replace(/[^0-9a-z]/gi, "")).slice(-4).toUpperCase(),
   }
 }
 
