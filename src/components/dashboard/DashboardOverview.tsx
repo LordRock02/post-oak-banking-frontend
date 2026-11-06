@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { TransactionTable } from "@/components/dashboard/TransactionTable"
 
 function formatCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -64,6 +65,8 @@ export function DashboardOverview() {
           </Card>
         ))}
       </div>
+
+      <TransactionTable />
     </div>
   )
 }

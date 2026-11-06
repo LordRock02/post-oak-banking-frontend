@@ -5,3 +5,14 @@ export interface Account {
   balance: number
   currency: string
 }
+
+export interface Transaction {
+  id: string
+  accountId: string
+  amount: number
+  type: "CREDIT" | "DEBIT"
+  category: string
+  merchantName: string
+  status: string
+  date: string
+}
