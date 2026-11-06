@@ -76,14 +76,14 @@ export function TransactionHistory() {
     <section
       id="transactions"
       aria-labelledby="transactions-title"
-      className="flex scroll-mt-20 flex-col gap-4 rounded-2xl bg-white p-5 ring-1 ring-slate-900/5 sm:p-6"
+      className="flex scroll-mt-20 flex-col gap-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/5 dark:ring-white/10 sm:p-6"
     >
       <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 id="transactions-title" className="text-base font-semibold text-slate-900">
+          <h2 id="transactions-title" className="text-base font-semibold text-foreground">
             Transactions
           </h2>
-          <p className="text-xs text-slate-500" aria-live="polite">
+          <p className="text-xs text-muted-foreground" aria-live="polite">
             {isLoading
               ? "Loading activity…"
               : `${filtered.length} ${filtered.length === 1 ? "result" : "results"}`}
@@ -104,7 +104,7 @@ export function TransactionHistory() {
       {/* Column headings (desktop only) */}
       <div
         aria-hidden="true"
-        className="hidden grid-cols-[auto_1fr_6rem_6.5rem_7rem] gap-3 border-b border-slate-100 px-3 pb-2 text-xs font-medium text-slate-400 sm:grid"
+        className="hidden grid-cols-[auto_1fr_6rem_6.5rem_7rem] gap-3 border-b border-border/70 px-3 pb-2 text-xs font-medium text-faint sm:grid"
       >
         <span className="w-10" />
         <span>Description</span>
@@ -119,12 +119,12 @@ export function TransactionHistory() {
         </ul>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <span className="flex size-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-muted text-faint">
             <SearchX className="size-5" />
           </span>
           <div>
-            <p className="text-sm font-medium text-slate-900">No transactions found</p>
-            <p className="text-xs text-slate-500">Try a different search term or filter.</p>
+            <p className="text-sm font-medium text-foreground">No transactions found</p>
+            <p className="text-xs text-muted-foreground">Try a different search term or filter.</p>
           </div>
           <Button variant="outline" size="sm" onClick={resetFilters}>
             Clear filters
@@ -147,7 +147,7 @@ export function TransactionHistory() {
           {visible < filtered.length && (
             <Button
               variant="ghost"
-              className="self-center text-slate-600"
+              className="self-center text-muted-foreground"
               onClick={() => setVisible((v) => v + PAGE_SIZE)}
             >
               Show more ({filtered.length - visible} remaining)
