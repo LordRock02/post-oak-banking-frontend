@@ -31,10 +31,14 @@ export function TrendIndicator({
 
   const tone =
     favourable === null
-      ? onDark ? "bg-white/10 text-slate-200" : "bg-slate-100 text-slate-600"
+      ? onDark ? "bg-white/10 text-slate-200" : "bg-muted text-muted-foreground"
       : favourable
-        ? onDark ? "bg-emerald-400/15 text-emerald-300" : "bg-emerald-50 text-emerald-700"
-        : onDark ? "bg-rose-400/15 text-rose-300" : "bg-rose-50 text-rose-700"
+        ? onDark
+          ? "bg-emerald-400/15 text-emerald-300"
+          : "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
+        : onDark
+          ? "bg-rose-400/15 text-rose-300"
+          : "bg-rose-50 text-rose-700 dark:bg-rose-400/10 dark:text-rose-300"
 
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-xs", className)}>
@@ -49,7 +53,7 @@ export function TrendIndicator({
         {formatPercent(value)}
       </span>
       {label && (
-        <span className={onDark ? "text-slate-400" : "text-slate-500"}>{label}</span>
+        <span className={onDark ? "text-slate-400" : "text-muted-foreground"}>{label}</span>
       )}
     </span>
   )

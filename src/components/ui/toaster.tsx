@@ -6,9 +6,9 @@ import { cn } from "cn"
 import { toastManager } from "@/lib/toast"
 
 const ICONS = {
-  success: <CheckCircle2 className="size-4 text-emerald-600" />,
-  info: <Info className="size-4 text-sky-600" />,
-  error: <XCircle className="size-4 text-rose-600" />,
+  success: <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />,
+  info: <Info className="size-4 text-sky-600 dark:text-sky-400" />,
+  error: <XCircle className="size-4 text-rose-600 dark:text-rose-400" />,
 } as const
 
 function ToastList() {
@@ -20,7 +20,7 @@ function ToastList() {
       toast={toast}
       swipeDirection={["right", "down"]}
       className={cn(
-        "relative flex w-full items-start gap-3 rounded-xl bg-white p-3.5 pr-10 shadow-lg ring-1 ring-slate-900/10 transition-all duration-300 ease-out select-none",
+        "relative flex w-full items-start gap-3 rounded-xl bg-card p-3.5 pr-10 shadow-lg ring-1 ring-foreground/10 transition-all duration-300 ease-out select-none",
         "data-starting-style:translate-y-4 data-starting-style:opacity-0 data-ending-style:translate-x-6 data-ending-style:opacity-0 data-limited:hidden"
       )}
     >
@@ -28,12 +28,12 @@ function ToastList() {
         {ICONS[(toast.type as keyof typeof ICONS) ?? "info"] ?? ICONS.info}
       </span>
       <div className="flex min-w-0 flex-col gap-0.5">
-        <Toast.Title className="text-sm font-semibold text-slate-900" />
-        <Toast.Description className="text-xs text-slate-500" />
+        <Toast.Title className="text-sm font-semibold text-foreground" />
+        <Toast.Description className="text-xs text-muted-foreground" />
       </div>
       <Toast.Close
         aria-label="Dismiss"
-        className="absolute top-2.5 right-2.5 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        className="absolute top-2.5 right-2.5 rounded-md p-1 text-faint transition-colors hover:bg-muted hover:text-foreground/80"
       >
         <XIcon className="size-3.5" />
       </Toast.Close>

@@ -44,7 +44,7 @@ function SegmentedControl<T extends string>({
     <div
       role="radiogroup"
       aria-label={label}
-      className={cn("inline-flex rounded-lg bg-slate-100 p-0.5", className)}
+      className={cn("inline-flex rounded-lg bg-muted p-0.5", className)}
     >
       {options.map((option, index) => {
         const selected = option.value === value
@@ -61,10 +61,10 @@ function SegmentedControl<T extends string>({
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => onKeyDown(e, index)}
             className={cn(
-              "rounded-md px-3 py-1 text-xs font-medium transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-slate-400",
+              "rounded-md px-3 py-1 text-xs font-medium transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring",
               selected
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
+                ? "bg-card text-foreground shadow-sm dark:bg-white/15"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {option.label}

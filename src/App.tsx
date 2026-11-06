@@ -8,6 +8,7 @@ import { SendMoneyDialog } from "@/components/dashboard/actions/SendMoneyDialog"
 import { AddFundsDialog } from "@/components/dashboard/actions/AddFundsDialog"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { BankingProvider } from "@/state/BankingProvider"
+import { ThemeProvider } from "@/theme/ThemeProvider"
 import { useBankingState } from "@/hooks/useBanking"
 
 type ActiveDialog = "send" | "add" | null
@@ -46,11 +47,13 @@ function AppShell() {
 
 function App() {
   return (
-    <ToastProvider>
-      <BankingProvider>
-        <AppShell />
-      </BankingProvider>
-    </ToastProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <BankingProvider>
+          <AppShell />
+        </BankingProvider>
+      </ToastProvider>
+    </ThemeProvider>
   )
 }
 

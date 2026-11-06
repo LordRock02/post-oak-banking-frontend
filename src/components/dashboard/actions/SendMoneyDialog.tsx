@@ -99,16 +99,16 @@ function SendMoneyForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1.5 text-xs font-medium text-slate-700">Recipient</legend>
+        <legend className="mb-1.5 text-xs font-medium text-foreground/80">Recipient</legend>
         <div className="grid grid-cols-2 gap-2">
           {SAVED_PAYEES.map((p) => (
             <label
               key={p.id}
               className={cn(
-                "flex cursor-pointer items-center gap-2.5 rounded-xl p-2.5 ring-1 transition-all has-focus-visible:ring-2 has-focus-visible:ring-slate-400",
+                "flex cursor-pointer items-center gap-2.5 rounded-xl p-2.5 ring-1 transition-all has-focus-visible:ring-2 has-focus-visible:ring-ring",
                 p.id === payeeId
-                  ? "bg-teal-50/60 ring-teal-600"
-                  : "ring-slate-200 hover:bg-slate-50"
+                  ? "bg-teal-50/60 dark:bg-teal-400/10 ring-teal-600 dark:ring-teal-400"
+                  : "ring-border hover:bg-muted/50"
               )}
             >
               <input
@@ -119,12 +119,12 @@ function SendMoneyForm({ onClose }: { onClose: () => void }) {
                 onChange={() => setPayeeId(p.id)}
                 className="sr-only"
               />
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-semibold text-white">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
                 {initials(p.name)}
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-xs font-medium text-slate-900">{p.name}</span>
-                <span className="block truncate text-[11px] text-slate-500">{p.detail}</span>
+                <span className="block truncate text-xs font-medium text-foreground">{p.name}</span>
+                <span className="block truncate text-[11px] text-muted-foreground">{p.detail}</span>
               </span>
             </label>
           ))}

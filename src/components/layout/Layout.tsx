@@ -15,6 +15,7 @@ import type { LucideIcon } from "lucide-react"
 import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import {
   Sheet,
   SheetContent,
@@ -69,10 +70,10 @@ function useActiveSection() {
 function BrandMark() {
   return (
     <div className="flex h-16 items-center gap-2.5 px-5">
-      <span className="flex size-8 items-center justify-center rounded-xl bg-slate-900 text-white">
+      <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground">
         <Landmark className="size-4" strokeWidth={2} />
       </span>
-      <span className="text-sm font-semibold tracking-tight text-slate-900">Post Oak</span>
+      <span className="text-sm font-semibold tracking-tight text-foreground">Post Oak</span>
     </div>
   )
 }
@@ -102,16 +103,16 @@ function NavLinks({ active, onNavigate }: NavLinksProps) {
             className={cn(
               "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
               isActive
-                ? "bg-slate-900 text-white shadow-sm"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : target
-                  ? "cursor-pointer text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                  : "cursor-not-allowed text-slate-400"
+                  ? "cursor-pointer text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "cursor-not-allowed text-faint"
             )}
           >
             <Icon className="size-4 transition-transform group-hover:scale-110" strokeWidth={1.75} />
             {label}
             {!target && (
-              <span className="ml-auto rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+              <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                 Soon
               </span>
             )}
@@ -124,10 +125,10 @@ function NavLinks({ active, onNavigate }: NavLinksProps) {
 
 function SecurityCard() {
   return (
-    <div className="m-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-900/5">
-      <ShieldCheck className="size-5 text-teal-600" strokeWidth={1.75} />
-      <p className="mt-2 text-xs font-medium text-slate-900">Your account is protected</p>
-      <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+    <div className="m-3 rounded-2xl bg-muted/50 p-4 ring-1 ring-foreground/5 dark:ring-white/10">
+      <ShieldCheck className="size-5 text-teal-600 dark:text-teal-400" strokeWidth={1.75} />
+      <p className="mt-2 text-xs font-medium text-foreground">Your account is protected</p>
+      <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
         FDIC insured up to $250,000. Two-factor authentication is on.
       </p>
     </div>
@@ -138,13 +139,13 @@ function UserProfile() {
   return (
     <button
       type="button"
-      className="flex items-center gap-2 rounded-xl py-1.5 pr-2 pl-1.5 text-sm transition-colors hover:bg-slate-100"
+      className="flex items-center gap-2 rounded-xl py-1.5 pr-2 pl-1.5 text-sm transition-colors hover:bg-muted"
     >
       <span className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-slate-800 text-xs font-semibold text-white">
         JD
       </span>
-      <span className="hidden text-sm font-medium text-slate-700 sm:inline">Jane Doe</span>
-      <ChevronDown className="hidden size-3.5 text-slate-400 sm:inline" />
+      <span className="hidden text-sm font-medium text-foreground/80 sm:inline">Jane Doe</span>
+      <ChevronDown className="hidden size-3.5 text-faint sm:inline" />
     </button>
   )
 }
@@ -161,16 +162,16 @@ export function Layout({ children, headerActions }: LayoutProps) {
   const activeLabel = NAV_ITEMS.find((item) => item.id === active)?.label ?? "Dashboard"
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200/70 bg-white md:flex">
+    <div className="min-h-screen bg-background">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border/70 bg-card md:flex">
         <BrandMark />
         <NavLinks active={active} onNavigate={setActive} />
         <SecurityCard />
-        <p className="px-5 pb-4 text-[11px] text-slate-400">&copy; {CURRENT_YEAR} Post Oak Banking</p>
+        <p className="px-5 pb-4 text-[11px] text-faint">&copy; {CURRENT_YEAR} Post Oak Banking</p>
       </aside>
 
       <div className="flex min-h-screen flex-col md:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-slate-200/70 bg-white/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border/70 bg-card/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
               <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden" />}>
@@ -192,13 +193,14 @@ export function Layout({ children, headerActions }: LayoutProps) {
                 <SecurityCard />
               </SheetContent>
             </Sheet>
-            <span className="text-sm font-medium text-slate-900">{activeLabel}</span>
+            <span className="text-sm font-medium text-foreground">{activeLabel}</span>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
             {headerActions}
+            <ThemeToggle />
             <Button variant="ghost" size="icon" className="relative rounded-xl" aria-label="Notifications">
-              <Bell className="size-4.5 text-slate-600" />
+              <Bell className="size-4.5 text-muted-foreground" />
               <span className="absolute top-2 right-2 size-1.5 rounded-full bg-rose-500" />
             </Button>
             <UserProfile />

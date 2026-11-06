@@ -21,9 +21,9 @@ interface StatTileProps {
 
 function StatTile({ label, value, icon: Icon, iconClassName, trend, invert, footnote, isLoading }: StatTileProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-white p-5 ring-1 ring-slate-900/5">
+    <div className="flex flex-col gap-3 rounded-2xl bg-card p-5 ring-1 ring-foreground/5 dark:ring-white/10">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
         <span className={`flex size-8 items-center justify-center rounded-lg ${iconClassName}`}>
           <Icon className="size-4" aria-hidden="true" />
         </span>
@@ -35,10 +35,10 @@ function StatTile({ label, value, icon: Icon, iconClassName, trend, invert, foot
         </>
       ) : (
         <>
-          <p className="text-2xl font-semibold tracking-tight text-slate-900 tabular-nums">{value}</p>
+          <p className="text-2xl font-semibold tracking-tight text-foreground tabular-nums">{value}</p>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <TrendIndicator value={trend} invert={invert} label="vs. last month" />
-            {footnote && <span className="text-xs text-slate-500">{footnote}</span>}
+            {footnote && <span className="text-xs text-muted-foreground">{footnote}</span>}
           </div>
         </>
       )}
@@ -54,17 +54,17 @@ export function MonthlySummary() {
   return (
     <section aria-labelledby="monthly-summary-title" className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-2">
-        <h2 id="monthly-summary-title" className="text-base font-semibold text-slate-900">
+        <h2 id="monthly-summary-title" className="text-base font-semibold text-foreground">
           {summary.monthLabel} so far
         </h2>
-        <p className="text-xs text-slate-500">Compared with the same days last month</p>
+        <p className="text-xs text-muted-foreground">Compared with the same days last month</p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile
           label="Money in"
           value={formatCurrency(current.income)}
           icon={ArrowDownLeft}
-          iconClassName="bg-teal-50 text-teal-700"
+          iconClassName="bg-teal-50 dark:bg-teal-400/10 text-teal-700 dark:text-teal-300"
           trend={percentChange(current.income, previous.income)}
           isLoading={isLoading}
         />
@@ -72,7 +72,7 @@ export function MonthlySummary() {
           label="Money out"
           value={formatCurrency(current.expenses)}
           icon={ArrowUpRight}
-          iconClassName="bg-rose-50 text-rose-700"
+          iconClassName="bg-rose-50 dark:bg-rose-400/10 text-rose-700 dark:text-rose-300"
           trend={percentChange(current.expenses, previous.expenses)}
           invert
           isLoading={isLoading}
@@ -81,7 +81,7 @@ export function MonthlySummary() {
           label="Net saved"
           value={formatCurrency(current.net)}
           icon={PiggyBank}
-          iconClassName="bg-slate-100 text-slate-700"
+          iconClassName="bg-muted text-foreground/80"
           trend={percentChange(current.net, previous.net)}
           footnote={`${Math.round(current.savingsRate)}% savings rate`}
           isLoading={isLoading}
