@@ -69,3 +69,22 @@ export interface AddFundsInput {
   source: string
   amount: number
 }
+
+export interface RegisterPayload {
+  email: string
+  password: string
+  fullName: string
+  companyName: string
+}
+
+export interface LoginPayload {
+  email: string
+  password: string
+}
+
+/** Response from both /auth/login and /auth/refresh. */
+export interface AuthResponse {
+  accessToken: string
+  refreshToken: string
+  fullName: string
+}

@@ -1,6 +1,7 @@
 import { AlertTriangle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useAuthState } from "@/hooks/useAuth"
 import { useBankingActions, useDashboardData } from "@/hooks/useBanking"
 import { BalanceHero } from "@/components/dashboard/overview/BalanceHero"
 import { AccountCards } from "@/components/dashboard/overview/AccountCards"
@@ -38,12 +39,14 @@ interface DashboardPageProps {
 
 export function DashboardPage({ onSendMoney, onAddFunds }: DashboardPageProps) {
   const { status, error, today } = useDashboardData()
+  const { fullName } = useAuthState()
+  const firstName = fullName?.split(" ")[0] ?? "there"
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <div id="overview" className="scroll-mt-20">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          {greeting(today)}, Jane
+          {greeting(today)}, {firstName}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })} ·

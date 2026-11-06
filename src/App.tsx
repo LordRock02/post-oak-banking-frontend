@@ -8,10 +8,13 @@ import { SendMoneyDialog } from "@/components/dashboard/actions/SendMoneyDialog"
 import { AddFundsDialog } from "@/components/dashboard/actions/AddFundsDialog"
 import { SettingsDialog } from "@/components/settings/SettingsDialog"
 import type { SettingsTab } from "@/components/settings/SettingsDialog"
+import { AuthPage } from "@/pages/AuthPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { BankingProvider } from "@/state/BankingProvider"
+import { AuthProvider } from "@/state/AuthProvider"
 import { ThemeProvider } from "@/theme/ThemeProvider"
 import { useBankingState } from "@/hooks/useBanking"
+import { useAuthState } from "@/hooks/useAuth"
 
 type ActiveDialog = "send" | "add" | "settings" | null
 
@@ -58,13 +61,25 @@ function AppShell() {
   )
 }
 
+function AuthGate() {
+  const { status } = useAuthState()
+
+  if (status !== "authenticated") return <AuthPage />
+
+  return (
+    <BankingProvider>
+      <AppShell />
+    </BankingProvider>
+  )
+}
+
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <BankingProvider>
-          <AppShell />
-        </BankingProvider>
+        <AuthProvider>
+          <AuthGate />
+        </AuthProvider>
       </ToastProvider>
     </ThemeProvider>
   )

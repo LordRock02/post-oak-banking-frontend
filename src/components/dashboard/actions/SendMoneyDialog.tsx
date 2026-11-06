@@ -12,7 +12,7 @@ import {
 import { Field, NativeSelect } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useBankingActions, useDashboardData } from "@/hooks/useBanking"
-import { formatCurrency } from "@/lib/format"
+import { formatCurrency, initials } from "@/lib/format"
 import { notify } from "@/lib/toast"
 import { SAVED_PAYEES } from "@/services/transactionService"
 import type { Transaction } from "@/types"
@@ -26,14 +26,6 @@ import { parseAmount, useSessionKey } from "@/components/dashboard/actions/formU
 interface SendMoneyDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-}
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
 }
 
 function SendMoneyForm({ onClose }: { onClose: () => void }) {
