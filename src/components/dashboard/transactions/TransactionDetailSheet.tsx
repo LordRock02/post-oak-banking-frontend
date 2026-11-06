@@ -103,6 +103,11 @@ export function TransactionDetailSheet({
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-6">
+              {t.status === "FAILED" && (
+                <p className="mt-4 rounded-xl bg-rose-50 dark:bg-rose-400/10 px-3.5 py-3 text-xs text-rose-900 dark:text-rose-300 ring-1 ring-rose-600/15 dark:ring-rose-400/25">
+                  This transaction didn&apos;t go through. No money moved, and it doesn&apos;t count toward your balance.
+                </p>
+              )}
               {t.status === "PENDING" && (
                 <p className="mt-4 rounded-xl bg-amber-50 dark:bg-amber-400/10 px-3.5 py-3 text-xs text-amber-900 dark:text-amber-300 ring-1 ring-amber-600/15 dark:ring-amber-400/25">
                   {credit

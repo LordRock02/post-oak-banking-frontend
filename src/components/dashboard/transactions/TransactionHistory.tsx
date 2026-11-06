@@ -1,7 +1,8 @@
 import { useCallback, useDeferredValue, useMemo, useState } from "react"
-import { SearchX } from "lucide-react"
+import { Receipt, SearchX } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/dashboard/EmptyState"
 import { SegmentedControl } from "@/components/ui/segmented-control"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDashboardData } from "@/hooks/useBanking"
@@ -65,6 +66,8 @@ export function TransactionHistory() {
     setFilter("ALL")
   }
 
+  const hasActivity = transactions.length > 0
+
   const onSelect = useCallback((t: Transaction) => setSelected(t), [])
 
   // Keep the drawer in sync if the open transaction settles while viewed.
@@ -90,7 +93,7 @@ export function TransactionHistory() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <SearchInput value={query} onChange={updateQuery} disabled={isLoading} />
+          <SearchInput value={query} onChange={updateQuery} disabled={isLoading || !hasActivity} />
           <SegmentedControl
             label="Filter transactions"
             options={FILTERS}
@@ -117,19 +120,23 @@ export function TransactionHistory() {
         <ul className="-mx-3 flex flex-col" aria-busy="true">
           {Array.from({ length: 6 }, (_, i) => <RowSkeleton key={i} />)}
         </ul>
+      ) : !hasActivity ? (
+        <EmptyState
+          icon={Receipt}
+          title="No recent transactions found"
+          description="Start spending to see your activity!"
+        />
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <span className="flex size-12 items-center justify-center rounded-2xl bg-muted text-faint">
-            <SearchX className="size-5" />
-          </span>
-          <div>
-            <p className="text-sm font-medium text-foreground">No transactions found</p>
-            <p className="text-xs text-muted-foreground">Try a different search term or filter.</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={resetFilters}>
-            Clear filters
-          </Button>
-        </div>
+        <EmptyState
+          icon={SearchX}
+          title="No transactions found"
+          description="Try a different search term or filter."
+          action={
+            <Button variant="outline" size="sm" onClick={resetFilters}>
+              Clear filters
+            </Button>
+          }
+        />
       ) : (
         <>
           <ul

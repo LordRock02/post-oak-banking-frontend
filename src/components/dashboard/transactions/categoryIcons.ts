@@ -14,10 +14,13 @@ import {
   Tv,
   Zap,
   CircleDollarSign,
+  Laptop,
 } from "lucide-react"
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
   Income: Banknote,
+  Payroll: Banknote,
+  Software: Laptop,
   Deposit: ArrowDownLeft,
   Interest: Percent,
   Transfer: ArrowLeftRight,

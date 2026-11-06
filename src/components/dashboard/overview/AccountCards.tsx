@@ -1,6 +1,7 @@
-import { Landmark, PiggyBank } from "lucide-react"
+import { Landmark, PiggyBank, WalletCards } from "lucide-react"
 
 import { Skeleton } from "@/components/ui/skeleton"
+import { EmptyState } from "@/components/dashboard/EmptyState"
 import { useDashboardData } from "@/hooks/useBanking"
 import { formatCurrency } from "@/lib/format"
 import type { AccountSnapshot } from "@/types"
@@ -62,7 +63,19 @@ function AccountCardSkeleton() {
 }
 
 export function AccountCards() {
-  const { isLoading, snapshots } = useDashboardData()
+  const { isLoading, snapshots, status } = useDashboardData()
+
+  if (status === "ready" && snapshots.length === 0) {
+    return (
+      <section aria-label="Accounts" className="rounded-2xl bg-card ring-1 ring-foreground/5 dark:ring-white/10">
+        <EmptyState
+          icon={WalletCards}
+          title="No accounts yet"
+          description="Once an account is opened for you, its balance will show up here."
+        />
+      </section>
+    )
+  }
 
   return (
     <section aria-label="Accounts" className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -23,7 +23,7 @@ type ActiveDialog = "send" | "add" | "settings" | null
 function AppShell() {
   const [dialog, setDialog] = useState<ActiveDialog>(null)
   const [settingsTab, setSettingsTab] = useState<SettingsTab>("profile")
-  const { status } = useBankingState()
+  const { status, accounts } = useBankingState()
   const closeIfDismissed = (open: boolean) => !open && setDialog(null)
   const openSettings = (tab: SettingsTab = "profile") => {
     setSettingsTab(tab)
@@ -38,7 +38,7 @@ function AppShell() {
           <Button
             size="lg"
             onClick={() => setDialog("send")}
-            disabled={status !== "ready"}
+            disabled={status !== "ready" || accounts.length === 0}
             className="hidden h-9 rounded-xl px-3.5 sm:inline-flex"
           >
             <ArrowUpRight data-icon="inline-start" />

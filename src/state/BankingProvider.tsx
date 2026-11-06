@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import type { ReactNode } from "react"
 
-import { getAccountsByUser, MOCK_USER_ID } from "@/services/accountService"
+import { useAuthState } from "@/hooks/useAuth"
+import { getAccountsByUser, getPrimaryAccount } from "@/services/accountService"
 import * as transactionService from "@/services/transactionService"
 import { formatCurrency } from "@/lib/format"
 import { notify } from "@/lib/toast"
@@ -20,15 +21,19 @@ export function BankingProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(bankingReducer, initialBankingState)
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>())
   const loadToken = useRef(0)
+  const userId = useAuthState().user?.id
 
   const load = useCallback(async () => {
     const token = ++loadToken.current
     dispatch({ type: "LOAD_START" })
     try {
-      const accounts = await getAccountsByUser(MOCK_USER_ID)
-      const transactions = await transactionService.getTransactionsByAccounts(
-        accounts.map((a) => a.id)
-      )
+      if (!userId) throw new Error("No signed-in user.")
+      const accounts = await getAccountsByUser(userId)
+      // Transactions follow from the accounts: only the primary account's history is shown.
+      const primary = getPrimaryAccount(accounts)
+      const transactions = primary
+        ? await transactionService.getTransactionsByAccount(primary.id)
+        : []
       // Ignore stale responses (e.g. StrictMode double-mount or a fast reload).
       if (token !== loadToken.current) return
       dispatch({ type: "LOAD_SUCCESS", accounts, transactions })
@@ -39,7 +44,7 @@ export function BankingProvider({ children }: { children: ReactNode }) {
         error: err instanceof Error ? err.message : "Unable to load accounts",
       })
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     void load()

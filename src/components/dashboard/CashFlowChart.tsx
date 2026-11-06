@@ -10,7 +10,10 @@ import {
 } from "recharts"
 import type { TooltipContentProps } from "recharts"
 
+import { ChartArea } from "lucide-react"
+
 import { SegmentedControl } from "@/components/ui/segmented-control"
+import { EmptyState } from "@/components/dashboard/EmptyState"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDashboardData } from "@/hooks/useBanking"
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion"
@@ -183,6 +186,13 @@ export function CashFlowChart() {
       <div className="h-72 w-full">
         {isLoading ? (
           <Skeleton className="size-full rounded-xl" />
+        ) : transactions.length === 0 ? (
+          <EmptyState
+            icon={ChartArea}
+            title="No cash flow yet"
+            description="Your income and expenses will be charted here as transactions come in."
+            className="size-full rounded-xl bg-muted/40"
+          />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>

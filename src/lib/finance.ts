@@ -15,6 +15,11 @@ export function isInternalTransfer(transaction: Transaction) {
   return transaction.category === "Transfer"
 }
 
+/** Failed transactions and internal transfers never count as income or expenses. */
+function countsAsCashFlow(transaction: Transaction) {
+  return transaction.status !== "FAILED" && !isInternalTransfer(transaction)
+}
+
 export function buildAccountSnapshots(
   accounts: Account[],
   transactions: Transaction[]
@@ -87,7 +92,7 @@ function totalsBetween(
   let income = 0
   let expenses = 0
   for (const t of transactions) {
-    if (t.date < start || t.date > end || isInternalTransfer(t)) continue
+    if (t.date < start || t.date > end || !countsAsCashFlow(t)) continue
     if (t.type === "CREDIT") income += t.amount
     else expenses += t.amount
   }
@@ -162,9 +167,9 @@ export function aggregateCashFlow(
   })
 
   for (const t of transactions) {
-    if (isInternalTransfer(t)) continue
+    if (!countsAsCashFlow(t)) continue
     const offset = Math.round((parseISODate(t.date).getTime() - start.getTime()) / DAY_MS)
-    if (offset < 0 || offset >= days) continue
+    if (!Number.isFinite(offset) || offset < 0 || offset >= days) continue
     const point = points[Math.floor(offset / bucketDays)]
     if (t.type === "CREDIT") point.income += t.amount
     else point.expenses += t.amount
@@ -198,6 +203,7 @@ export function filterTransactions(
 
 export function sortByNewest(transactions: Transaction[]) {
   return [...transactions].sort(
-    (a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)
+    (a, b) =>
+      (b.createdAt ?? b.date).localeCompare(a.createdAt ?? a.date) || b.id.localeCompare(a.id)
   )
 }
