@@ -52,7 +52,7 @@ export function BalanceHero({ onSendMoney, onAddFunds }: BalanceHeroProps) {
                 <span className="text-slate-400">
                   {change.amount >= 0 ? "+" : "−"}
                   {formatCurrency(Math.abs(change.amount))} in the last 30 days · across{" "}
-                  {snapshots.length} accounts
+                  {snapshots.length} {snapshots.length === 1 ? "account" : "accounts"}
                 </span>
               </div>
             </>
@@ -63,7 +63,7 @@ export function BalanceHero({ onSendMoney, onAddFunds }: BalanceHeroProps) {
           <Button
             size="lg"
             onClick={onSendMoney}
-            disabled={isLoading}
+            disabled={isLoading || snapshots.length === 0}
             className="h-10 flex-1 rounded-xl bg-white px-4 text-slate-900 hover:bg-slate-100 lg:flex-none"
           >
             <ArrowUpRight data-icon="inline-start" />
@@ -72,7 +72,7 @@ export function BalanceHero({ onSendMoney, onAddFunds }: BalanceHeroProps) {
           <Button
             size="lg"
             onClick={onAddFunds}
-            disabled={isLoading}
+            disabled={isLoading || snapshots.length === 0}
             className="h-10 flex-1 rounded-xl bg-white/10 px-4 text-white ring-1 ring-white/15 hover:bg-white/20 lg:flex-none"
           >
             <Plus data-icon="inline-start" />

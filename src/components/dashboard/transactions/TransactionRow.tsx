@@ -65,9 +65,9 @@ export const TransactionRow = memo(function TransactionRow({
           >
             {formatSignedCurrency(transaction.amount, transaction.type)}
           </span>
-          {transaction.status === "PENDING" && (
+          {transaction.status !== "POSTED" && (
             <span className="sm:hidden">
-              <StatusBadge status="PENDING" />
+              <StatusBadge status={transaction.status} />
             </span>
           )}
         </span>

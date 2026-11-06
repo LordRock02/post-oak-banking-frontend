@@ -13,7 +13,7 @@ export interface Account {
 }
 
 export type TransactionType = "CREDIT" | "DEBIT"
-export type TransactionStatus = "POSTED" | "PENDING"
+export type TransactionStatus = "POSTED" | "PENDING" | "FAILED"
 
 export interface Transaction {
   id: string
@@ -25,6 +25,8 @@ export interface Transaction {
   status: TransactionStatus
   /** ISO date (YYYY-MM-DD). */
   date: string
+  /** Full ISO timestamp, when known; orders transactions within a day. */
+  createdAt?: string
   /** Human-readable bank reference, e.g. "PO-7F3K2Q". */
   reference: string
   description?: string
