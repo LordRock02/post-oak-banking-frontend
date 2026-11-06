@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { TransactionTable } from "@/components/dashboard/TransactionTable"
+import { CashFlowChart } from "@/components/dashboard/CashFlowChart"
 
 function formatCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -65,6 +66,8 @@ export function DashboardOverview() {
           </Card>
         ))}
       </div>
+
+      <CashFlowChart />
 
       <TransactionTable />
     </div>
