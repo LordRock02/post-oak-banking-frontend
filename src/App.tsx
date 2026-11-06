@@ -1,28 +1,56 @@
+import { useState } from "react"
+import { ArrowUpRight } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { ToastProvider } from "@/components/ui/toaster"
 import { Layout } from "@/components/layout/Layout"
-import { DashboardOverview } from "@/components/dashboard/DashboardOverview"
+import { SendMoneyDialog } from "@/components/dashboard/actions/SendMoneyDialog"
+import { AddFundsDialog } from "@/components/dashboard/actions/AddFundsDialog"
+import { DashboardPage } from "@/pages/DashboardPage"
+import { BankingProvider } from "@/state/BankingProvider"
+import { useBankingState } from "@/hooks/useBanking"
 
-function DashboardPage() {
+type ActiveDialog = "send" | "add" | null
+
+function AppShell() {
+  const [dialog, setDialog] = useState<ActiveDialog>(null)
+  const { status } = useBankingState()
+  const closeIfDismissed = (open: boolean) => !open && setDialog(null)
+
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-slate-900">
-          Welcome back
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Here&apos;s an overview of your accounts.
-        </p>
-      </div>
+    <>
+      <Layout
+        headerActions={
+          <Button
+            size="lg"
+            onClick={() => setDialog("send")}
+            disabled={status !== "ready"}
+            className="hidden h-9 rounded-xl px-3.5 sm:inline-flex"
+          >
+            <ArrowUpRight data-icon="inline-start" />
+            Send
+          </Button>
+        }
+      >
+        <DashboardPage
+          onSendMoney={() => setDialog("send")}
+          onAddFunds={() => setDialog("add")}
+        />
+      </Layout>
 
-      <DashboardOverview />
-    </div>
+      <SendMoneyDialog open={dialog === "send"} onOpenChange={closeIfDismissed} />
+      <AddFundsDialog open={dialog === "add"} onOpenChange={closeIfDismissed} />
+    </>
   )
 }
 
 function App() {
   return (
-    <Layout>
-      <DashboardPage />
-    </Layout>
+    <ToastProvider>
+      <BankingProvider>
+        <AppShell />
+      </BankingProvider>
+    </ToastProvider>
   )
 }
 
