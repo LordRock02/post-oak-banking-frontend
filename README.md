@@ -2,6 +2,8 @@
 
 > A modern, responsive retail-banking dashboard built as a technical case study for **Post Oak Group**.
 
+**🚀 Live demo:** [post-oak-banking-frontend.vercel.app](https://post-oak-banking-frontend.vercel.app/), deployed on Vercel
+
 Post Oak Banking is a frontend MVP that gives retail customers a clear, real-time picture of their finances: balances across accounts, how money is moving in and out, and a searchable history of every transaction, plus simulated core banking actions such as sending money and adding funds.
 
 The application is built with React and TypeScript on Vite, styled with Tailwind CSS and shadcn/ui, and charts its data with Recharts. All data currently comes from a mock service layer designed to be swapped for a real backend with no changes to the UI.
@@ -10,6 +12,7 @@ The application is built with React and TypeScript on Vite, styled with Tailwind
 
 ## Table of Contents
 
+- [Live Demo](https://post-oak-banking-frontend.vercel.app/)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture & Design Decisions](#architecture--design-decisions)
