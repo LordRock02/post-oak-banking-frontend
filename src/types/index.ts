@@ -82,9 +82,16 @@ export interface LoginPayload {
   password: string
 }
 
-/** Response from both /auth/login and /auth/refresh. */
-export interface AuthResponse {
+/** Tokens returned by /auth/login. /auth/refresh only rotates the access token. */
+export interface AuthTokens {
   accessToken: string
   refreshToken: string
+}
+
+/** The signed-in user, as returned by GET /usuarios/me. */
+export interface User {
+  id: string
   fullName: string
+  email: string
+  companyName: string
 }

@@ -39,8 +39,8 @@ interface DashboardPageProps {
 
 export function DashboardPage({ onSendMoney, onAddFunds }: DashboardPageProps) {
   const { status, error, today } = useDashboardData()
-  const { fullName } = useAuthState()
-  const firstName = fullName?.split(" ")[0] ?? "there"
+  const { user } = useAuthState()
+  const firstName = user?.fullName.split(" ")[0] || "there"
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">

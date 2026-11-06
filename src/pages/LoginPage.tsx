@@ -1,22 +1,21 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
+import { Link } from "react-router"
 
 import { AuthLayout } from "@/components/auth/AuthLayout"
 import { FormAlert } from "@/components/auth/shared"
 import { SubmitButton } from "@/components/dashboard/actions/shared"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useAuthActions } from "@/hooks/useAuth"
 import { loginErrorMessage } from "@/lib/authErrors"
+import { cn } from "@/lib/utils"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-interface LoginPageProps {
-  onSwitchToRegister: () => void
-}
-
-export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
+/** On success the auth state flips to authenticated and <GuestRoute> redirects away. */
+export function LoginPage() {
   const { login } = useAuthActions()
 
   const [email, setEmail] = useState("")
@@ -58,9 +57,9 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
       footer={
         <>
           Don&apos;t have an account?{" "}
-          <Button variant="link" type="button" className="h-auto p-0 text-sm" onClick={onSwitchToRegister}>
+          <Link to="/register" className={cn(buttonVariants({ variant: "link" }), "h-auto p-0 text-sm")}>
             Create one
-          </Button>
+          </Link>
         </>
       }
     >

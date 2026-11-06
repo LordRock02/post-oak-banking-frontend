@@ -1,26 +1,24 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
+import { Link, useNavigate } from "react-router"
 
 import { AuthLayout } from "@/components/auth/AuthLayout"
 import { FormAlert } from "@/components/auth/shared"
 import { SubmitButton } from "@/components/dashboard/actions/shared"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useAuthActions } from "@/hooks/useAuth"
 import { registerErrorMessage } from "@/lib/authErrors"
 import { notify } from "@/lib/toast"
+import { cn } from "@/lib/utils"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 8
 
-interface RegisterPageProps {
-  onSwitchToLogin: () => void
-  onRegistered: () => void
-}
-
-export function RegisterPage({ onSwitchToLogin, onRegistered }: RegisterPageProps) {
+export function RegisterPage() {
   const { register } = useAuthActions()
+  const navigate = useNavigate()
 
   const [fullName, setFullName] = useState("")
   const [companyName, setCompanyName] = useState("")
@@ -61,7 +59,7 @@ export function RegisterPage({ onSwitchToLogin, onRegistered }: RegisterPageProp
         password,
       })
       notify("Account created", "You can now sign in.")
-      onRegistered()
+      navigate("/login")
     } catch (err) {
       setFormError(registerErrorMessage(err))
     } finally {
@@ -76,9 +74,9 @@ export function RegisterPage({ onSwitchToLogin, onRegistered }: RegisterPageProp
       footer={
         <>
           Already have an account?{" "}
-          <Button variant="link" type="button" className="h-auto p-0 text-sm" onClick={onSwitchToLogin}>
+          <Link to="/login" className={cn(buttonVariants({ variant: "link" }), "h-auto p-0 text-sm")}>
             Sign in
-          </Button>
+          </Link>
         </>
       }
     >
