@@ -1,4 +1,22 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+import axios from "axios"
+import type { AxiosError, InternalAxiosRequestConfig } from "axios"
+
+import { clearTokens, getAccessToken, getRefreshToken, setAccessToken } from "@/lib/authStorage"
+
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+const REFRESH_PATH = "/api/v1/auth/refresh"
+
+declare module "axios" {
+  interface AxiosRequestConfig {
+    /** Public endpoint (login, register): no Bearer token, and a 401 is never refreshed. */
+    skipAuth?: boolean
+  }
+}
+
+interface RetriableRequestConfig extends InternalAxiosRequestConfig {
+  /** Set once a request has been retried after a refresh, so a second 401 can't loop. */
+  _retry?: boolean
+}
 
 export class ApiError extends Error {
   /** HTTP status, or 0 if the request never reached the server. */
@@ -11,81 +29,99 @@ export class ApiError extends Error {
   }
 }
 
-type TokenGetter = () => string | null
-/** Attempts a token refresh; resolves to the new access token, or null if refresh failed. */
-type UnauthorizedHandler = () => Promise<string | null>
-
-let getAccessToken: TokenGetter = () => null
-let onUnauthorized: UnauthorizedHandler = () => Promise.resolve(null)
-
-/** Wires the client to the auth layer. Called once from <AuthProvider>. */
-export function configureApiClient(options: {
-  getAccessToken: TokenGetter
-  onUnauthorized: UnauthorizedHandler
-}) {
-  getAccessToken = options.getAccessToken
-  onUnauthorized = options.onUnauthorized
+function toApiError(error: AxiosError): ApiError {
+  if (!error.response) {
+    return new ApiError(0, "Can't reach the server. Is the backend running?")
+  }
+  const { status, statusText, data } = error.response
+  const body = data as { message?: string; error?: string } | string | undefined
+  const message =
+    (typeof body === "object" && body && (body.message ?? body.error)) ||
+    statusText ||
+    `Request failed with status ${status}`
+  return new ApiError(status, message)
 }
 
-interface RequestOptions {
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
-  body?: unknown
-  /** Attach the Bearer token and retry-on-401. Defaults to true. */
-  auth?: boolean
-}
+/* ---------- Session expiry ---------- */
 
-async function readBody(response: Response) {
-  const text = await response.text()
-  if (!text) return undefined
-  try {
-    return JSON.parse(text)
-  } catch {
-    return text
+type SessionExpiredHandler = () => void
+
+const redirectToLogin: SessionExpiredHandler = () => window.location.assign("/login")
+let onSessionExpired: SessionExpiredHandler = redirectToLogin
+
+/**
+ * Lets <AuthProvider> handle an unrecoverable 401 in-app (reset state + router
+ * redirect) instead of the full-page reload fallback. Returns an unsubscribe.
+ */
+export function setSessionExpiredHandler(handler: SessionExpiredHandler) {
+  onSessionExpired = handler
+  return () => {
+    if (onSessionExpired === handler) onSessionExpired = redirectToLogin
   }
 }
 
-async function request<T>(
-  path: string,
-  { method = "GET", body, auth = true }: RequestOptions = {},
-  isRetry = false
-): Promise<T> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" }
-  if (auth) {
-    const token = getAccessToken()
-    if (token) headers.Authorization = `Bearer ${token}`
-  }
+function expireSession() {
+  clearTokens()
+  onSessionExpired()
+}
 
-  let response: Response
-  try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+/* ---------- Token refresh ---------- */
+
+/** Shared in-flight refresh, so concurrent 401s trigger a single /auth/refresh call. */
+let refreshInFlight: Promise<string> | null = null
+
+function refreshAccessToken(): Promise<string> {
+  refreshInFlight ??= (async () => {
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) throw new Error("No refresh token stored.")
+    // Bare axios, not `api`: the refresh call must bypass our interceptors.
+    const { data } = await axios.post<{ accessToken: string }>(`${API_BASE_URL}${REFRESH_PATH}`, {
+      refreshToken,
     })
-  } catch {
-    throw new ApiError(0, "Can't reach the server. Is the backend running?")
-  }
-
-  if (response.status === 401 && auth && !isRetry) {
-    const newToken = await onUnauthorized()
-    if (newToken) return request<T>(path, { method, body, auth }, true)
-  }
-
-  if (!response.ok) {
-    const data = await readBody(response)
-    const message =
-      (typeof data === "object" && data && (data.message ?? data.error)) ||
-      response.statusText ||
-      `Request failed with status ${response.status}`
-    throw new ApiError(response.status, message)
-  }
-
-  return (await readBody(response)) as T
+    setAccessToken(data.accessToken)
+    return data.accessToken
+  })().finally(() => {
+    refreshInFlight = null
+  })
+  return refreshInFlight
 }
 
-export const apiClient = {
-  get: <T,>(path: string, options?: Omit<RequestOptions, "method" | "body">) =>
-    request<T>(path, { ...options, method: "GET" }),
-  post: <T,>(path: string, body?: unknown, options?: Omit<RequestOptions, "method" | "body">) =>
-    request<T>(path, { ...options, method: "POST", body }),
-}
+/* ---------- Axios instance ---------- */
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { "Content-Type": "application/json" },
+})
+
+api.interceptors.request.use((config) => {
+  if (!config.skipAuth) {
+    const token = getAccessToken()
+    if (token) config.headers.set("Authorization", `Bearer ${token}`)
+  }
+  return config
+})
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error: unknown) => {
+    if (!axios.isAxiosError(error)) throw error
+
+    const original = error.config as RetriableRequestConfig | undefined
+    const canRefresh =
+      error.response?.status === 401 && original && !original.skipAuth && !original._retry
+
+    if (!canRefresh) throw toApiError(error)
+
+    original._retry = true
+    let token: string
+    try {
+      token = await refreshAccessToken()
+    } catch {
+      expireSession()
+      throw toApiError(error)
+    }
+
+    original.headers.set("Authorization", `Bearer ${token}`)
+    return api(original)
+  }
+)

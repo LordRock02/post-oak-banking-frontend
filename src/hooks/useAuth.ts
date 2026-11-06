@@ -13,3 +13,8 @@ export function useAuthActions() {
   if (!actions) throw new Error("useAuthActions must be used within <AuthProvider>")
   return actions
 }
+
+/** Convenience hook returning auth state and actions together. */
+export function useAuth() {
+  return { ...useAuthState(), ...useAuthActions() }
+}

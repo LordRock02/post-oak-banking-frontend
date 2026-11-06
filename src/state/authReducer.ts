@@ -1,28 +1,24 @@
-export type AuthStatus = "authenticated" | "unauthenticated"
+import type { User } from "@/types"
+
+/** "checking" = a stored token is being validated against /usuarios/me. */
+export type AuthStatus = "checking" | "authenticated" | "unauthenticated"
 
 export interface AuthState {
   status: AuthStatus
-  fullName: string | null
-  email: string | null
+  user: User | null
 }
 
-export type AuthAction =
-  | { type: "AUTHENTICATED"; fullName: string; email: string | null }
-  | { type: "LOGGED_OUT" }
+export type AuthAction = { type: "AUTHENTICATED"; user: User } | { type: "LOGGED_OUT" }
 
-export function initialAuthState(
-  session: { fullName: string; email: string | null } | null
-): AuthState {
-  return session
-    ? { status: "authenticated", fullName: session.fullName, email: session.email }
-    : { status: "unauthenticated", fullName: null, email: null }
+export function initialAuthState(hasStoredToken: boolean): AuthState {
+  return { status: hasStoredToken ? "checking" : "unauthenticated", user: null }
 }
 
 export function authReducer(_state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case "AUTHENTICATED":
-      return { status: "authenticated", fullName: action.fullName, email: action.email }
+      return { status: "authenticated", user: action.user }
     case "LOGGED_OUT":
-      return { status: "unauthenticated", fullName: null, email: null }
+      return { status: "unauthenticated", user: null }
   }
 }

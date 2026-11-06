@@ -1,44 +1,44 @@
 const ACCESS_TOKEN_KEY = "post-oak-access-token"
 const REFRESH_TOKEN_KEY = "post-oak-refresh-token"
-const FULL_NAME_KEY = "post-oak-full-name"
-const EMAIL_KEY = "post-oak-email"
+/** Keys written by earlier versions; removed on logout so nothing stale lingers. */
+const LEGACY_KEYS = ["post-oak-full-name", "post-oak-email"]
 
-export interface StoredSession {
-  accessToken: string
-  refreshToken: string
-  fullName: string
-  email: string | null
-}
+// Every accessor swallows storage errors (private mode, blocked site data):
+// the session then just won't persist across reloads.
 
-export function loadSession(): StoredSession | null {
+function read(key: string) {
   try {
-    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY)
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
-    const fullName = localStorage.getItem(FULL_NAME_KEY)
-    if (!accessToken || !refreshToken || !fullName) return null
-    return { accessToken, refreshToken, fullName, email: localStorage.getItem(EMAIL_KEY) }
+    return localStorage.getItem(key)
   } catch {
-    return null // storage unavailable (private mode, blocked cookies)
+    return null
   }
 }
 
-export function storeSession(session: StoredSession) {
+function write(key: string, value: string) {
   try {
-    localStorage.setItem(ACCESS_TOKEN_KEY, session.accessToken)
-    localStorage.setItem(REFRESH_TOKEN_KEY, session.refreshToken)
-    localStorage.setItem(FULL_NAME_KEY, session.fullName)
-    if (session.email) localStorage.setItem(EMAIL_KEY, session.email)
+    localStorage.setItem(key, value)
   } catch {
-    // Non-fatal: the session simply won't persist across reloads.
+    // Non-fatal.
   }
 }
 
-export function clearSession() {
+export const getAccessToken = () => read(ACCESS_TOKEN_KEY)
+export const getRefreshToken = () => read(REFRESH_TOKEN_KEY)
+
+export function setAccessToken(accessToken: string) {
+  write(ACCESS_TOKEN_KEY, accessToken)
+}
+
+export function setTokens(tokens: { accessToken: string; refreshToken: string }) {
+  write(ACCESS_TOKEN_KEY, tokens.accessToken)
+  write(REFRESH_TOKEN_KEY, tokens.refreshToken)
+}
+
+export function clearTokens() {
   try {
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    localStorage.removeItem(FULL_NAME_KEY)
-    localStorage.removeItem(EMAIL_KEY)
+    for (const key of [ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, ...LEGACY_KEYS]) {
+      localStorage.removeItem(key)
+    }
   } catch {
     // Non-fatal.
   }

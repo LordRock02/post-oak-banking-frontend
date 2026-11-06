@@ -1,78 +1,79 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useReducer } from "react"
 import type { ReactNode } from "react"
+import { useNavigate } from "react-router"
 
-import { configureApiClient } from "@/services/apiClient"
+import { setSessionExpiredHandler } from "@/services/apiClient"
 import * as authService from "@/services/authService"
-import { clearSession, loadSession, storeSession } from "@/lib/authStorage"
+import { clearTokens, getAccessToken, setTokens } from "@/lib/authStorage"
 import { authReducer, initialAuthState } from "@/state/authReducer"
 import { AuthActionsContext, AuthStateContext } from "@/state/AuthContext"
-import type { AuthActions } from "@/state/AuthContext"
+import type { AuthActions, AuthContextState } from "@/state/AuthContext"
 import type { LoginPayload, RegisterPayload } from "@/types"
 
+/** Must be rendered inside the router: it redirects to /login when the session expires. */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Read localStorage once, synchronously, so there's no "checking" flash on load.
-  const [session] = useState(loadSession)
-  const accessTokenRef = useRef(session?.accessToken ?? null)
-  const refreshTokenRef = useRef(session?.refreshToken ?? null)
-  const [state, dispatch] = useReducer(authReducer, session, initialAuthState)
+  const [state, dispatch] = useReducer(authReducer, Boolean(getAccessToken()), initialAuthState)
+  const navigate = useNavigate()
 
   const logout = useCallback(() => {
-    accessTokenRef.current = null
-    refreshTokenRef.current = null
-    clearSession()
+    clearTokens()
     dispatch({ type: "LOGGED_OUT" })
   }, [])
 
-  /**
-   * Refreshes the access token on a 401. The backend only rotates the access
-   * token here — refreshToken/fullName are kept as-is unless it sends new ones.
-   * Logs the user out if the refresh token is also dead.
-   */
-  const refresh = useCallback(async () => {
-    const refreshToken = refreshTokenRef.current
-    if (!refreshToken) return null
-    try {
-      const response = await authService.refreshAccessToken(refreshToken)
-      accessTokenRef.current = response.accessToken
-      const nextRefreshToken = response.refreshToken ?? refreshToken
-      refreshTokenRef.current = nextRefreshToken
-      const fullName = response.fullName ?? state.fullName ?? ""
-      storeSession({
-        accessToken: response.accessToken,
-        refreshToken: nextRefreshToken,
-        fullName,
-        email: state.email,
-      })
-      if (response.fullName) dispatch({ type: "AUTHENTICATED", fullName, email: state.email })
-      return response.accessToken
-    } catch {
-      logout()
-      return null
-    }
-  }, [logout, state.email, state.fullName])
+  // The API client has already cleared the tokens by the time this runs.
+  useEffect(
+    () =>
+      setSessionExpiredHandler(() => {
+        dispatch({ type: "LOGGED_OUT" })
+        navigate("/login", { replace: true })
+      }),
+    [navigate]
+  )
 
+  // Validate a stored token once on load. A 401 here goes through the
+  // interceptor's refresh flow first; anything still failing ends the session.
   useEffect(() => {
-    configureApiClient({
-      getAccessToken: () => accessTokenRef.current,
-      onUnauthorized: refresh,
-    })
-  }, [refresh])
+    if (!getAccessToken()) return
+    let cancelled = false
+    authService
+      .getCurrentUser()
+      .then((user) => {
+        if (!cancelled) dispatch({ type: "AUTHENTICATED", user })
+      })
+      .catch(() => {
+        if (!cancelled) logout()
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [logout])
 
   const login = useCallback(async (input: LoginPayload) => {
-    const response = await authService.login(input)
-    accessTokenRef.current = response.accessToken
-    refreshTokenRef.current = response.refreshToken
-    storeSession({ ...response, email: input.email })
-    dispatch({ type: "AUTHENTICATED", fullName: response.fullName, email: input.email })
+    setTokens(await authService.login(input))
+    try {
+      dispatch({ type: "AUTHENTICATED", user: await authService.getCurrentUser() })
+    } catch (err) {
+      clearTokens()
+      throw err
+    }
   }, [])
 
   const register = useCallback((input: RegisterPayload) => authService.register(input), [])
 
   const actions = useMemo<AuthActions>(() => ({ login, register, logout }), [login, register, logout])
 
+  const value = useMemo<AuthContextState>(
+    () => ({
+      ...state,
+      isAuthenticated: state.status === "authenticated",
+      isLoading: state.status === "checking",
+    }),
+    [state]
+  )
+
   return (
     <AuthActionsContext.Provider value={actions}>
-      <AuthStateContext.Provider value={state}>{children}</AuthStateContext.Provider>
+      <AuthStateContext.Provider value={value}>{children}</AuthStateContext.Provider>
     </AuthActionsContext.Provider>
   )
 }

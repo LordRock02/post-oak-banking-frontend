@@ -19,9 +19,10 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ onOpenSettings }: ProfileMenuProps) {
-  const { fullName, email } = useAuthState()
+  const { user } = useAuthState()
   const { logout } = useAuthActions()
-  const name = fullName ?? "Account"
+  const name = user?.fullName ?? "Account"
+  const email = user?.email
 
   return (
     <DropdownMenu>
